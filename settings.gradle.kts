@@ -5,6 +5,11 @@ pluginManagement {
         id("io.micronaut.aot") version micronautGradlePluginVersion
         id("com.gradleup.shadow") version "8.3.7"
     }
+    repositories {
+        mavenCentral()
+        gradlePluginPortal()
+        mavenLocal()
+    }
 }
 
 rootProject.name = "ayden-chance-tv"
