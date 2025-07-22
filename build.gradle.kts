@@ -14,6 +14,7 @@ subprojects {
         extensions.configure<JavaPluginExtension> {
             toolchain {
                 languageVersion = JavaLanguageVersion.of(JavaVersion.VERSION_21.majorVersion)
+                nativeImageCapable = true
             }
         }
     }
