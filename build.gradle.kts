@@ -7,6 +7,7 @@ plugins {
 subprojects {
     repositories {
         mavenCentral()
+        mavenLocal()
     }
 
     pluginManager.withPlugin("java") {
