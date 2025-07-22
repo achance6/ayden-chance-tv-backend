@@ -1,4 +1,4 @@
-package org.acme.lambda;
+package com.chance.ayden.transcoderdispatchfunction;
 
 public class Person {
 

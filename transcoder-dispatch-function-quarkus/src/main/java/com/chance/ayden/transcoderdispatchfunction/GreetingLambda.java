@@ -1,4 +1,4 @@
-package org.acme.lambda;
+package com.chance.ayden.transcoderdispatchfunction;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;

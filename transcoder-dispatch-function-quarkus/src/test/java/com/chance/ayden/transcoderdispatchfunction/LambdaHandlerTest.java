@@ -1,4 +1,4 @@
-package org.acme.lambda;
+package com.chance.ayden.transcoderdispatchfunction;
 
 import org.junit.jupiter.api.Test;
 

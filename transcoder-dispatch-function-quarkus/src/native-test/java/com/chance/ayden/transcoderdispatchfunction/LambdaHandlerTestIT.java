@@ -1,4 +1,4 @@
-package org.acme.lambda;
+package com.chance.ayden.transcoderdispatchfunction;
 
 import io.quarkus.test.junit.QuarkusIntegrationTest;
 
