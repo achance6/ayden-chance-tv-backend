@@ -1,6 +1,3 @@
-POST http://localhost:8080
-Content-Type: application/json
-
 {
   "Records": [
     {
@@ -39,6 +36,3 @@ Content-Type: application/json
     }
   ]
 }
-###
-
-
