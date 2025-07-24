@@ -13,9 +13,7 @@ import static io.restassured.RestAssured.given;
 @QuarkusTest
 class LambdaHandlerTest {
   @Test
-  void testSimpleLambdaSuccess() throws Exception {
-	// you test your lambdas by invoking on http://localhost:8081
-	// this works in dev mode too
+  void test_requestHandler_validRequest_204NoContent() throws Exception {
 
 	InputStream eventStream = this.getClass().getClassLoader().getResourceAsStream("payload.json");
 	var outputStream = new ByteArrayOutputStream();
