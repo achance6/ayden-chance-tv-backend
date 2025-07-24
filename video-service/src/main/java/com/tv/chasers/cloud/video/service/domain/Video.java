@@ -13,13 +13,13 @@ import java.util.UUID;
 @Serdeable
 @Introspected
 public record Video(
-        @NonNull UUID videoId,
-        @NotBlank String title,
-        @NullOrNotBlank String description,
-        @NonNull List<@NotBlank String> tags,
-        @NonNull LocalDateTime creationDateTime,
-        @NotBlank String uploader,
-        @NonNull Integer viewCount
+	@NonNull UUID videoId,
+	@NotBlank String title,
+	@NullOrNotBlank String description,
+	@NonNull List<@NotBlank String> tags,
+	@NonNull LocalDateTime creationDateTime,
+	@NotBlank String uploader,
+	@NonNull Integer viewCount
 ) {
 
 }

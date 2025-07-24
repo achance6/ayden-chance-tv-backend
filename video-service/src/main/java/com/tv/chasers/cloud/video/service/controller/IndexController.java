@@ -9,8 +9,8 @@ import java.util.Map;
 @Controller
 public class IndexController {
 
-    @Get
-    public Map<String, Object> index() {
-        return Collections.singletonMap("message", "Hello World");
-    }
+  @Get
+  public Map<String, Object> index() {
+	return Collections.singletonMap("message", "Hello World");
+  }
 }

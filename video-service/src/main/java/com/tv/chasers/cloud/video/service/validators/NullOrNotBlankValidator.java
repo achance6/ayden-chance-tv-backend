@@ -13,13 +13,13 @@ import jakarta.inject.Singleton;
 @Singleton
 public class NullOrNotBlankValidator implements ConstraintValidator<NullOrNotBlank, String> {
 
-    @Override
-    public boolean isValid(@Nullable String value, @NonNull AnnotationValue<NullOrNotBlank> annotationMetadata, @NonNull ConstraintValidatorContext context) {
-        return value == null || !value.trim().isEmpty();
-    }
+  @Override
+  public boolean isValid(@Nullable String value, @NonNull AnnotationValue<NullOrNotBlank> annotationMetadata, @NonNull ConstraintValidatorContext context) {
+	return value == null || !value.trim().isEmpty();
+  }
 
-    @Override
-    public boolean isValid(String value, jakarta.validation.ConstraintValidatorContext context) {
-        return ConstraintValidator.super.isValid(value, context);
-    }
+  @Override
+  public boolean isValid(String value, jakarta.validation.ConstraintValidatorContext context) {
+	return ConstraintValidator.super.isValid(value, context);
+  }
 }

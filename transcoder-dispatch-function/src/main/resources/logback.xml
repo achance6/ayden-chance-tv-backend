@@ -6,9 +6,9 @@
     </appender>
 
     <root level="${env:AWS_LAMBDA_LOG_LEVEL:INFO}">
-        <appender-ref ref="Lambda" />
+        <appender-ref ref="Lambda"/>
     </root>
 
-    <logger name="software.amazon.awssdk" level="INFO" />
-    <logger name="software.amazon.awssdk.request" level="INFO" />
+    <logger name="software.amazon.awssdk" level="INFO"/>
+    <logger name="software.amazon.awssdk.request" level="INFO"/>
 </configuration>
