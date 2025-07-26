@@ -5,9 +5,9 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.S3Event;
 import com.amazonaws.services.lambda.runtime.events.models.s3.S3EventNotification;
 import io.quarkus.logging.Log;
-import software.amazon.awssdk.http.urlconnection.UrlConnectionHttpClient;
+import software.amazon.awssdk.http.crt.AwsCrtAsyncHttpClient;
 import software.amazon.awssdk.regions.Region;
-import software.amazon.awssdk.services.mediaconvert.MediaConvertClient;
+import software.amazon.awssdk.services.mediaconvert.MediaConvertAsyncClient;
 import software.amazon.awssdk.services.mediaconvert.model.AacCodingMode;
 import software.amazon.awssdk.services.mediaconvert.model.AacSettings;
 import software.amazon.awssdk.services.mediaconvert.model.AntiAlias;
@@ -66,13 +66,13 @@ public class TranscoderDispatchLambda implements RequestHandler<S3Event, Void> {
 
   private static final String MEDIA_CONVERT_ROLE_ARN = "arn:aws:iam::039612889815:role/service-role/MediaConvert_Default_Role";
 
-  private static final MediaConvertClient CLIENT;
+  private static final MediaConvertAsyncClient CLIENT;
 
   // Client priming for AWS Lambda.
   static {
-	CLIENT = MediaConvertClient.builder()
+	CLIENT = MediaConvertAsyncClient.builder()
 		.region(Region.US_EAST_1) // Improves performance
-		.httpClient(UrlConnectionHttpClient.create())
+		.httpClient(AwsCrtAsyncHttpClient.create())
 		.build();
   }
 
@@ -212,8 +212,8 @@ public class TranscoderDispatchLambda implements RequestHandler<S3Event, Void> {
 		.settings(jobSettings)
 		.build();
 
-	createJobResponse = CLIENT.createJob(mediaConvertJob);
-	Log.info("Created MediaConvert job with job ID: " + createJobResponse.job().id());
+	CLIENT.createJob(mediaConvertJob);
+	Log.info("Created MediaConvert job");
 
   }
 

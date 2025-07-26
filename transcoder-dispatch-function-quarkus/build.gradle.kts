@@ -18,7 +18,7 @@ dependencies {
         exclude(group = "software.amazon.awssdk", module = "apache-client")
         exclude(group = "software.amazon.awssdk", module = "netty-nio-client")
     }
-    implementation("software.amazon.awssdk:url-connection-client")
+    implementation("software.amazon.awssdk:aws-crt-client")
 
     testImplementation("io.quarkus:quarkus-junit5")
     testImplementation("io.rest-assured:rest-assured")
