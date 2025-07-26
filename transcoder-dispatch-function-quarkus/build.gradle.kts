@@ -14,7 +14,10 @@ dependencies {
     implementation(enforcedPlatform("io.quarkus.platform:quarkus-amazon-services-bom:$quarkusPlatformVersion"))
     implementation("io.quarkus:quarkus-amazon-lambda")
 
-    implementation("software.amazon.awssdk:mediaconvert")
+    implementation("software.amazon.awssdk:mediaconvert") {
+        exclude(group = "software.amazon.awssdk", module = "apache-client")
+        exclude(group = "software.amazon.awssdk", module = "netty-nio-client")
+    }
     implementation("software.amazon.awssdk:url-connection-client")
 
     testImplementation("io.quarkus:quarkus-junit5")

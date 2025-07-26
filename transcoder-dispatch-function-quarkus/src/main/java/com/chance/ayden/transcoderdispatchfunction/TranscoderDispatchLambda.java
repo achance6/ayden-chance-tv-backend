@@ -5,6 +5,8 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.S3Event;
 import com.amazonaws.services.lambda.runtime.events.models.s3.S3EventNotification;
 import io.quarkus.logging.Log;
+import software.amazon.awssdk.http.urlconnection.UrlConnectionHttpClient;
+import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.mediaconvert.MediaConvertClient;
 import software.amazon.awssdk.services.mediaconvert.model.AacCodingMode;
 import software.amazon.awssdk.services.mediaconvert.model.AacSettings;
@@ -63,6 +65,17 @@ public class TranscoderDispatchLambda implements RequestHandler<S3Event, Void> {
   private static final String MP_4_OUTPUT = S3_OUTPUT_URI + "mp4/";
 
   private static final String MEDIA_CONVERT_ROLE_ARN = "arn:aws:iam::039612889815:role/service-role/MediaConvert_Default_Role";
+
+  private static final MediaConvertClient CLIENT;
+
+  // Client priming for AWS Lambda.
+  static {
+	CLIENT = MediaConvertClient.builder()
+		.region(Region.US_EAST_1) // Improves performance
+		.httpClient(UrlConnectionHttpClient.create())
+		.build();
+  }
+
   private final Output.Builder baseOutputBuilder = Output.builder()
 	  .audioDescriptions(List.of(AudioDescription.builder()
 		  .codecSettings(AudioCodecSettings.builder()
@@ -184,25 +197,23 @@ public class TranscoderDispatchLambda implements RequestHandler<S3Event, Void> {
 
 	String s3ObjectARN = parseS3EventARN(s3Event);
 	CreateJobResponse createJobResponse;
-	try (MediaConvertClient mediaConvertClient = MediaConvertClient.create()) {
 
-	  Log.debug("MediaConvert role ARN: " + MEDIA_CONVERT_ROLE_ARN);
-	  Log.debug("MediaConvert input file ARN: " + s3ObjectARN);
-	  Log.debug("MediaConvert output base path: " + S3_OUTPUT_URI);
+	Log.debug("MediaConvert role ARN: " + MEDIA_CONVERT_ROLE_ARN);
+	Log.debug("MediaConvert input file ARN: " + s3ObjectARN);
+	Log.debug("MediaConvert output base path: " + S3_OUTPUT_URI);
 
-	  OutputGroup fileMp4 = createMp4OutputGroup();
-	  OutputGroup thumbsGroup = createThumbsOutputGroup();
+	OutputGroup fileMp4 = createMp4OutputGroup();
+	OutputGroup thumbsGroup = createThumbsOutputGroup();
 
-	  JobSettings jobSettings = createJobSettings(s3ObjectARN, fileMp4, thumbsGroup);
+	JobSettings jobSettings = createJobSettings(s3ObjectARN, fileMp4, thumbsGroup);
 
-	  CreateJobRequest mediaConvertJob = CreateJobRequest.builder()
-		  .role(MEDIA_CONVERT_ROLE_ARN)
-		  .settings(jobSettings)
-		  .build();
+	CreateJobRequest mediaConvertJob = CreateJobRequest.builder()
+		.role(MEDIA_CONVERT_ROLE_ARN)
+		.settings(jobSettings)
+		.build();
 
-	  createJobResponse = mediaConvertClient.createJob(mediaConvertJob);
-	  Log.info("Created MediaConvert job with job ID: " + createJobResponse.job().id());
-	}
+	createJobResponse = CLIENT.createJob(mediaConvertJob);
+	Log.info("Created MediaConvert job with job ID: " + createJobResponse.job().id());
 
   }
 
