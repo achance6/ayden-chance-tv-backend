@@ -168,3 +168,9 @@ Icon
 Network Trash Folder
 Temporary Items
 .apdisk
+### CDK template
+# CDK asset staging directory.
+# For more information about AWS-CDK, see  https://docs.aws.amazon.com/cdk/
+.cdk.staging/
+cdk.out/
+
