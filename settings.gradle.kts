@@ -20,6 +20,6 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 include(
     "video-service",
-    "transcoder-dispatch-function-quarkus",
+    "transcoder-dispatch-function",
     "stack"
 )
