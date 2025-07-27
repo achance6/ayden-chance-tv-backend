@@ -14,7 +14,10 @@ import software.amazon.awscdk.services.lambda.Architecture;
 import software.amazon.awscdk.services.lambda.Code;
 import software.amazon.awscdk.services.lambda.Function;
 import software.amazon.awscdk.services.lambda.Runtime;
+import software.amazon.awscdk.services.lambda.SnapStartConf;
+import software.amazon.awscdk.services.lambda.VersionOptions;
 import software.amazon.awscdk.services.lambda.eventsources.S3EventSource;
+import software.amazon.awscdk.services.logs.LogGroup;
 import software.amazon.awscdk.services.s3.BlockPublicAccess;
 import software.amazon.awscdk.services.s3.Bucket;
 import software.amazon.awscdk.services.s3.CorsRule;
@@ -115,7 +118,7 @@ public class ActvStack extends Stack {
 		.build()
 	);
 
-	Function.Builder.create(this, "createMediaConvertJobFunction")
+	final Function createMediaConvertJobFunction = Function.Builder.create(this, "createMediaConvertJobFunction")
 		.functionName("test-createMediaConvertJob")
 		.code(Code.fromAsset("../transcoder-dispatch-function-quarkus/build/function.zip"))
 		.handler("io.quarkus.amazon.lambda.runtime.QuarkusStreamHandler::handleRequest")
@@ -131,6 +134,21 @@ public class ActvStack extends Stack {
 				))
 				.build()
 		))
+		.currentVersionOptions(
+			VersionOptions.builder()
+				.removalPolicy(RemovalPolicy.DESTROY)
+				.build()
+		)
+		// Version 1 published in stack.
+		.snapStart(SnapStartConf.ON_PUBLISHED_VERSIONS)
+		.logGroup(
+			LogGroup.Builder.create(this, "createMediaConvertJobLogGroup")
+				.removalPolicy(RemovalPolicy.DESTROY)
+				.build()
+		)
 		.build();
+
+	// Create a version every time CDK synth is run
+	createMediaConvertJobFunction.getCurrentVersion();
   }
 }
