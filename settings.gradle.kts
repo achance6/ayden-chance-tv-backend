@@ -18,4 +18,8 @@ rootProject.name = "ayden-chance-tv"
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
-include("video-service", "transcoder-dispatch-function", "transcoder-dispatch-function-quarkus", "stack")
+include(
+    "video-service",
+    "transcoder-dispatch-function-quarkus",
+    "stack"
+)
