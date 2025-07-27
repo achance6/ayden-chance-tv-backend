@@ -2,6 +2,7 @@ plugins {
     id("io.micronaut.application") apply false
     id("com.gradleup.shadow") apply false
     id("io.micronaut.aot") apply false
+    id("io.quarkus") apply false
 }
 
 subprojects {
