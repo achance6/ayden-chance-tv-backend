@@ -14,11 +14,9 @@ import java.util.UUID;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 @QuarkusTest
 class VideoServiceTest {
-  private static final UUID uuid = UUID.randomUUID();
   private final ObjectMapper objectMapper;
 
   @Inject
@@ -92,7 +90,7 @@ class VideoServiceTest {
         .statusCode(RestResponse.StatusCode.OK)
         .body("size()", greaterThanOrEqualTo(2));
   }
-  
+
   @Test
   void testVideosGetWithUploader() {
 	given()
@@ -123,7 +121,6 @@ class VideoServiceTest {
 		.statusCode(RestResponse.StatusCode.NOT_FOUND);
   }
 
-  // TODO: Finish
   @Test
   void testVideosGetWithSearch() {
 	given()
@@ -135,8 +132,8 @@ class VideoServiceTest {
 		.then()
 		.assertThat()
 		.statusCode(RestResponse.StatusCode.OK)
-		.log()
-		.body(true);
+		.and()
+		.body("title", everyItem(containsString("test")));;
   }
 
   @Test
@@ -151,8 +148,8 @@ class VideoServiceTest {
 		.then()
 		.assertThat()
 		.statusCode(RestResponse.StatusCode.OK)
-		.log()
-		.body(true);
+		.and()
+		.body("videoId", equalTo(videoId.toString()));
   }
 
   @Test
@@ -169,11 +166,8 @@ class VideoServiceTest {
 		.then()
 		.assertThat()
 		.statusCode(RestResponse.StatusCode.OK)
-		.log()
-		.body(true);
-
-	int viewsAfterIncrement = fetchTestVideo(videoId).viewCount();
-	assertEquals(viewsAfterIncrement, viewsBeforeIncrement + 1);
+		.and()
+		.body("viewCount", equalTo(viewsBeforeIncrement + 1));
   }
 
   @Test
