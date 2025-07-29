@@ -185,7 +185,9 @@ public class ActvStack extends Stack {
 				.assumedBy(ServicePrincipal.Builder.create("lambda.amazonaws.com").build())
 				.managedPolicies(
 					List.of(
-						ManagedPolicy.fromAwsManagedPolicyName("service-role/AWSLambdaBasicExecutionRole")
+						ManagedPolicy.fromAwsManagedPolicyName("service-role/AWSLambdaBasicExecutionRole"),
+						// TODO: Delete this once this stack is finished
+						ManagedPolicy.fromAwsManagedPolicyName("AmazonDynamoDBFullAccess_V2")
 					)
 				)
 				.description("Role for createMediaConvertJob")
