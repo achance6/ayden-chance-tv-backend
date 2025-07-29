@@ -1,7 +1,7 @@
 package com.chance.ayden.videoservice.mapper;
 
 import com.chance.ayden.videoservice.domain.Video;
-import jakarta.inject.Singleton;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-@Singleton
+@ApplicationScoped
 public class VideoMapper {
 
   @NotNull

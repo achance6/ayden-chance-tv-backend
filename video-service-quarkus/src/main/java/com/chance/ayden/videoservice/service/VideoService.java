@@ -34,7 +34,10 @@ public class VideoService {
   private final VideoMapper videoMapper;
   private final DynamoDbClient dynamoDbClient;
 
-  public VideoService(VideoMapper videoMapper, DynamoDbClient dynamoDbClient) {
+  public VideoService(
+	  VideoMapper videoMapper,
+	  @SuppressWarnings("CdiInjectionPointsInspection") DynamoDbClient dynamoDbClient
+  ) {
 	this.videoMapper = videoMapper;
 	this.dynamoDbClient = dynamoDbClient;
   }
@@ -48,7 +51,7 @@ public class VideoService {
 		.build();
 
 	PutItemResponse response = dynamoDbClient.putItem(request);
-	Log.infov("Response from DynamoDB putItem: {}", response);
+	Log.infov("Response from DynamoDB putItem: {0}", response);
   }
 
   public Optional<Video> getVideo(@NotNull UUID videoId) {
@@ -61,7 +64,7 @@ public class VideoService {
 		.build();
 
 	GetItemResponse response = dynamoDbClient.getItem(request);
-	Log.infov("Response from DynamoDB getItem: {}", response);
+	Log.infov("Response from DynamoDB getItem: {0}", response);
 	if (!response.hasItem()) {
 	  return Optional.empty();
 	}
@@ -116,7 +119,7 @@ public class VideoService {
 		.build();
 
 	DeleteItemResponse deleteItemResponse = dynamoDbClient.deleteItem(deleteItemRequest);
-	Log.infov("Response from DynamoDB delete: {}", deleteItemResponse);
+	Log.infov("Response from DynamoDB delete: {0}", deleteItemResponse);
 	return deleteItemResponse.sdkHttpResponse();
   }
 
