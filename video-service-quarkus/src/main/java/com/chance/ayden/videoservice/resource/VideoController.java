@@ -30,9 +30,7 @@ public class VideoController {
 
   @Path("/{videoId}")
   @GET
-  public RestResponse<Video> getVideo(
-	  @PathParam("videoId") UUID videoId
-  ) {
+  public RestResponse<Video> getVideo(@PathParam("videoId") UUID videoId) {
 	Log.infov("Received /video GET request with videoId {0}", videoId);
 	var video = videoService.getVideo(videoId);
 	if (video.isEmpty()) {
@@ -43,9 +41,7 @@ public class VideoController {
 
   @Path("/{videoId}")
   @DELETE
-  public RestResponse<String> deleteVideo(
-	  @PathParam("videoId") UUID videoId
-  ) {
+  public RestResponse<String> deleteVideo(@PathParam("videoId") UUID videoId) {
 	Log.infov("Received /video DELETE request with videoId {0}", videoId);
 	var sdkRestResponse = videoService.deleteVideo(videoId);
 
@@ -74,9 +70,7 @@ public class VideoController {
   }
 
   @POST
-  public RestResponse<Video> storeVideo(
-	  @Valid Video video
-  ) {
+  public RestResponse<Video> storeVideo(@Valid Video video) {
 	Log.infov("Received /video POST request with video: {0}", video);
 	try {
 	  videoService.storeVideo(video);

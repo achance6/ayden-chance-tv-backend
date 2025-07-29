@@ -42,7 +42,7 @@ public class VideoService {
 	this.dynamoDbClient = dynamoDbClient;
   }
 
-  public void storeVideo(@NotNull @Valid Video video) {
+  public void storeVideo(Video video) {
 	Map<String, AttributeValue> item = videoMapper.mapVideoToDynamoDbItem(video);
 
 	PutItemRequest request = PutItemRequest.builder()
@@ -54,7 +54,7 @@ public class VideoService {
 	Log.infov("Response from DynamoDB putItem: {0}", response);
   }
 
-  public Optional<Video> getVideo(@NotNull UUID videoId) {
+  public Optional<Video> getVideo(UUID videoId) {
 	Map<String, AttributeValue> item = new HashMap<>();
 	item.put("VideoId", AttributeValue.fromS(videoId.toString()));
 
@@ -108,8 +108,7 @@ public class VideoService {
 		.collect(Collectors.toSet());
   }
 
-  @NotNull
-  public SdkHttpResponse deleteVideo(@NotNull UUID videoId) {
+  public SdkHttpResponse deleteVideo(UUID videoId) {
 	Map<String, AttributeValue> item = new HashMap<>();
 	item.put("VideoId", AttributeValue.fromS(videoId.toString()));
 
@@ -123,7 +122,7 @@ public class VideoService {
 	return deleteItemResponse.sdkHttpResponse();
   }
 
-  public Optional<Video> incrementVideoView(@NotNull UUID videoId) {
+  public Optional<Video> incrementVideoView(UUID videoId) {
 	var videoOptional = getVideo(videoId);
 	if (videoOptional.isEmpty()) {
 	  return Optional.empty();
