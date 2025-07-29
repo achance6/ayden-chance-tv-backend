@@ -4,17 +4,25 @@ import software.amazon.awscdk.Duration;
 import software.amazon.awscdk.RemovalPolicy;
 import software.amazon.awscdk.Stack;
 import software.amazon.awscdk.StackProps;
+import software.amazon.awscdk.services.apigateway.LambdaIntegration;
+import software.amazon.awscdk.services.apigatewayv2.HttpApi;
+import software.amazon.awscdk.services.dynamodb.Attribute;
+import software.amazon.awscdk.services.dynamodb.AttributeType;
+import software.amazon.awscdk.services.dynamodb.BillingMode;
+import software.amazon.awscdk.services.dynamodb.Table;
 import software.amazon.awscdk.services.iam.AnyPrincipal;
 import software.amazon.awscdk.services.iam.Effect;
 import software.amazon.awscdk.services.iam.ManagedPolicy;
 import software.amazon.awscdk.services.iam.PolicyStatement;
 import software.amazon.awscdk.services.iam.Role;
 import software.amazon.awscdk.services.iam.ServicePrincipal;
+import software.amazon.awscdk.services.lambda.Alias;
 import software.amazon.awscdk.services.lambda.Architecture;
 import software.amazon.awscdk.services.lambda.Code;
 import software.amazon.awscdk.services.lambda.Function;
 import software.amazon.awscdk.services.lambda.Runtime;
 import software.amazon.awscdk.services.lambda.SnapStartConf;
+import software.amazon.awscdk.services.lambda.Version;
 import software.amazon.awscdk.services.lambda.VersionOptions;
 import software.amazon.awscdk.services.lambda.eventsources.S3EventSource;
 import software.amazon.awscdk.services.logs.LogGroup;
@@ -27,6 +35,7 @@ import software.constructs.Construct;
 
 import java.util.List;
 
+@SuppressWarnings("unused")
 public class ActvStack extends Stack {
   @SuppressWarnings("unused")
   public ActvStack(final Construct scope, final String id) {
@@ -36,16 +45,15 @@ public class ActvStack extends Stack {
   public ActvStack(final Construct scope, final String id, final StackProps props) {
 	super(scope, id, props);
 
-	final Role createMediaConvertJobServiceRole = Role.Builder.create(this, "createMediaConvertJobServiceRole")
-		.roleName("test-createMediaConvertJob-role")
-		.assumedBy(ServicePrincipal.Builder.create("lambda.amazonaws.com").build())
-		.managedPolicies(
-			List.of(
-				ManagedPolicy.fromAwsManagedPolicyName("service-role/AWSLambdaBasicExecutionRole"),
-				ManagedPolicy.fromAwsManagedPolicyName("AWSElementalMediaConvertFullAccess")
-			)
+	final Table actvVideo = Table.Builder.create(this, "ActvVideo")
+		.tableName("test-ActvVideo")
+		.partitionKey(Attribute.builder()
+			.name("VideoId")
+			.type(AttributeType.STRING)
+			.build()
 		)
-		.description("Role for createMediaConvertJob")
+		.removalPolicy(RemovalPolicy.DESTROY)
+		.billingMode(BillingMode.PAY_PER_REQUEST)
 		.build();
 
 	final Bucket originalVideosBucket = Bucket.Builder.create(this, "originalVideosBucket")
@@ -67,7 +75,7 @@ public class ActvStack extends Stack {
 		.removalPolicy(RemovalPolicy.DESTROY)
 		.build();
 
-	Bucket.Builder.create(this, "transcodedVideosBucket")
+	final Bucket transcodedVideosBucket = Bucket.Builder.create(this, "transcodedVideosBucket")
 		.bucketName("test-actv-transcoded-videos")
 		.cors(List.of(
 			CorsRule.builder()
@@ -126,7 +134,19 @@ public class ActvStack extends Stack {
 		.memorySize(1024)
 		.runtime(Runtime.JAVA_21)
 		.architecture(Architecture.ARM_64)
-		.role(createMediaConvertJobServiceRole)
+		.role(
+			Role.Builder.create(this, "createMediaConvertJobServiceRole")
+				.roleName("test-createMediaConvertJob-role")
+				.assumedBy(ServicePrincipal.Builder.create("lambda.amazonaws.com").build())
+				.managedPolicies(
+					List.of(
+						ManagedPolicy.fromAwsManagedPolicyName("service-role/AWSLambdaBasicExecutionRole"),
+						ManagedPolicy.fromAwsManagedPolicyName("AWSElementalMediaConvertFullAccess")
+					)
+				)
+				.description("Role for createMediaConvertJob")
+				.build()
+		)
 		.events(List.of(
 			S3EventSource.Builder.create(originalVideosBucket)
 				.events(List.of(
@@ -134,11 +154,6 @@ public class ActvStack extends Stack {
 				))
 				.build()
 		))
-		.currentVersionOptions(
-			VersionOptions.builder()
-				.removalPolicy(RemovalPolicy.DESTROY)
-				.build()
-		)
 		// Version 1 published in stack.
 		.snapStart(SnapStartConf.ON_PUBLISHED_VERSIONS)
 		.logGroup(
@@ -148,7 +163,56 @@ public class ActvStack extends Stack {
 		)
 		.build();
 
-	// Create a version every time CDK synth is run
-	createMediaConvertJobFunction.getCurrentVersion();
+	final Version createMediaConvertJobFunctionCurrentVersion = createMediaConvertJobFunction.getCurrentVersion();
+
+	final Alias createMediaConvertJobFunctionAlias = Alias.Builder.create(this, "createMediaConvertJobFunctionAlias")
+		.aliasName("prod")
+		.description(createMediaConvertJobFunctionCurrentVersion.getVersion())
+		.version(createMediaConvertJobFunctionCurrentVersion)
+		.build();
+
+	final Function videoApiFunction = Function.Builder.create(this, "videoApiFunction")
+		.functionName("test-videoApiFunction")
+		.code(Code.fromAsset("../video-service-quarkus/build/function.zip"))
+		.handler("io.quarkus.amazon.lambda.runtime.QuarkusStreamHandler::handleRequest")
+		.timeout(Duration.seconds(10))
+		.memorySize(1024)
+		.runtime(Runtime.JAVA_21)
+		.architecture(Architecture.ARM_64)
+		.role(
+			Role.Builder.create(this, "videoApiFunctionServiceRole")
+				.roleName("test-videoApiFunction-role")
+				.assumedBy(ServicePrincipal.Builder.create("lambda.amazonaws.com").build())
+				.managedPolicies(
+					List.of(
+						ManagedPolicy.fromAwsManagedPolicyName("service-role/AWSLambdaBasicExecutionRole")
+					)
+				)
+				.description("Role for createMediaConvertJob")
+				.build()
+		)
+		.currentVersionOptions(
+			VersionOptions.builder()
+				.removalPolicy(RemovalPolicy.DESTROY)
+				.build()
+		)
+		// Version 1 published in stack.
+		.snapStart(SnapStartConf.ON_PUBLISHED_VERSIONS)
+		.logGroup(
+			LogGroup.Builder.create(this, "videoApiFunctionLogGroup")
+				.removalPolicy(RemovalPolicy.DESTROY)
+				.build()
+		)
+		.build();
+
+	final Version videoApiFunctionCurrentVersion = videoApiFunction.getCurrentVersion();
+
+	final Alias videoApiFunctionAlias = Alias.Builder.create(this, "videoApiFunctionAlias")
+		.aliasName("prod")
+		.description(videoApiFunctionCurrentVersion.getVersion())
+		.version(videoApiFunctionCurrentVersion)
+		.build();
+
+	actvVideo.grantReadWriteData(videoApiFunction);
   }
 }
