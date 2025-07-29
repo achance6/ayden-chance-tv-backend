@@ -120,7 +120,7 @@ public class ActvStack extends Stack {
 
 	final Function createMediaConvertJobFunction = Function.Builder.create(this, "createMediaConvertJobFunction")
 		.functionName("test-createMediaConvertJob")
-		.code(Code.fromAsset("../transcoder-dispatch-function-quarkus/build/function.zip"))
+		.code(Code.fromAsset("../transcoder-dispatch-function/build/function.zip"))
 		.handler("io.quarkus.amazon.lambda.runtime.QuarkusStreamHandler::handleRequest")
 		.timeout(Duration.seconds(10))
 		.memorySize(1024)
