@@ -223,9 +223,6 @@ public class ActvStack extends Stack {
 
 	actvVideo.grantReadWriteData(videoApiFunction);
 
-	final HttpLambdaIntegration videoApiFunctionIntegration = HttpLambdaIntegration.Builder.create("videoApiFunctionIntegration", videoApiFunctionAlias)
-		.build();
-
 	final HttpApi videoApi = HttpApi.Builder.create(this, "test-videoApi")
 		.description("Video API")
 		.corsPreflight(CorsPreflightOptions.builder()
@@ -237,9 +234,12 @@ public class ActvStack extends Stack {
 		.build();
 
 	videoApi.addRoutes(AddRoutesOptions.builder()
-			.path("/{proxy+}")
-			.methods(List.of(HttpMethod.ANY))
-			.integration(videoApiFunctionIntegration)
+		.path("/{proxy+}")
+		.methods(List.of(HttpMethod.ANY))
+		.integration(
+			HttpLambdaIntegration.Builder.create("videoApiFunctionIntegration", videoApiFunctionAlias)
+				.build()
+		)
 		.build()
 	);
   }
