@@ -4,8 +4,14 @@ import software.amazon.awscdk.Duration;
 import software.amazon.awscdk.RemovalPolicy;
 import software.amazon.awscdk.Stack;
 import software.amazon.awscdk.StackProps;
+import software.amazon.awscdk.aws_apigatewayv2_integrations.HttpLambdaIntegration;
 import software.amazon.awscdk.services.apigateway.LambdaIntegration;
+import software.amazon.awscdk.services.apigateway.LambdaRestApi;
+import software.amazon.awscdk.services.apigatewayv2.AddRoutesOptions;
+import software.amazon.awscdk.services.apigatewayv2.CorsHttpMethod;
+import software.amazon.awscdk.services.apigatewayv2.CorsPreflightOptions;
 import software.amazon.awscdk.services.apigatewayv2.HttpApi;
+import software.amazon.awscdk.services.apigatewayv2.HttpMethod;
 import software.amazon.awscdk.services.dynamodb.Attribute;
 import software.amazon.awscdk.services.dynamodb.AttributeType;
 import software.amazon.awscdk.services.dynamodb.BillingMode;
@@ -186,7 +192,7 @@ public class ActvStack extends Stack {
 				.managedPolicies(
 					List.of(
 						ManagedPolicy.fromAwsManagedPolicyName("service-role/AWSLambdaBasicExecutionRole"),
-						// TODO: Delete this once this stack is finished
+						// TODO: Delete this once this stack replaces legacy stack
 						ManagedPolicy.fromAwsManagedPolicyName("AmazonDynamoDBFullAccess_V2")
 					)
 				)
@@ -216,5 +222,25 @@ public class ActvStack extends Stack {
 		.build();
 
 	actvVideo.grantReadWriteData(videoApiFunction);
+
+	final HttpLambdaIntegration videoApiFunctionIntegration = HttpLambdaIntegration.Builder.create("videoApiFunctionIntegration", videoApiFunctionAlias)
+		.build();
+
+	final HttpApi videoApi = HttpApi.Builder.create(this, "test-videoApi")
+		.description("Video API")
+		.corsPreflight(CorsPreflightOptions.builder()
+			.allowOrigins(List.of("*")) // TODO: Revisit
+			.allowMethods(List.of(CorsHttpMethod.ANY))
+			.allowHeaders(List.of("content-type"))
+			.build()
+		)
+		.build();
+
+	videoApi.addRoutes(AddRoutesOptions.builder()
+			.path("/{proxy+}")
+			.methods(List.of(HttpMethod.ANY))
+			.integration(videoApiFunctionIntegration)
+		.build()
+	);
   }
 }
