@@ -2,7 +2,7 @@
   "app": "./gradlew :stack:run",
   "watch": {
     "include": [
-      "**"
+      "./video-service-quarkus/src/main/**"
     ],
     "exclude": [
       "README.md",
