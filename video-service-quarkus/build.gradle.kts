@@ -11,6 +11,7 @@ dependencies {
     implementation("io.quarkus:quarkus-rest-jackson")
     implementation("io.quarkus:quarkus-hibernate-validator")
     implementation("io.quarkiverse.amazonservices:quarkus-amazon-dynamodb-enhanced")
+    // TODO: Test AWS CRT Client
     implementation("software.amazon.awssdk:url-connection-client")
 
     testImplementation("io.quarkus:quarkus-junit5")
