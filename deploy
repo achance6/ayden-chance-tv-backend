@@ -1,2 +1,2 @@
 #!/bin/bash
-exec cdk synth && cdk deploy 2>/dev/null --no-rollback
+exec cdk synth && cdk deploy -a stack/cdk.out --no-rollback 2>/dev/null
