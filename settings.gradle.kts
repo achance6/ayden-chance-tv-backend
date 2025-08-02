@@ -22,6 +22,5 @@ include(
     "video-service",
     "video-service-quarkus",
     "transcoder-dispatch-function",
-    "stack",
-    "frontend"
+    "stack"
 )
