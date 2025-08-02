@@ -1,0 +1,2 @@
+#!/bin/bash
+exec cdk synth && cdk deploy 2>/dev/null --no-rollback
