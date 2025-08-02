@@ -178,8 +178,7 @@ public class ActvStack extends Stack {
 		.build();
 
 	final Function videoApiFunction = Function.Builder.create(this, "videoApiFunction")
-		.functionName("test-videoApiFunction")
-		.code(Code.fromAsset("../video-service-quarkus/build/function.zip"))
+		.code(Code.fromAsset("../video-service/build/function.zip"))
 		.handler("io.quarkus.amazon.lambda.runtime.QuarkusStreamHandler::handleRequest")
 		.timeout(Duration.seconds(10))
 		.memorySize(1024)
