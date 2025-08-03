@@ -118,7 +118,9 @@ class VideoServiceTest {
 		.get("/video/videos")
 		.then()
 		.assertThat()
-		.statusCode(RestResponse.StatusCode.NOT_FOUND);
+		.statusCode(RestResponse.StatusCode.OK)
+		.and()
+		.body("size()", equalTo(0));
   }
 
   @Test

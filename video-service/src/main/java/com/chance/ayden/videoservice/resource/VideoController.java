@@ -63,9 +63,6 @@ public class VideoController {
   ) {
 	Log.infov("Received /video/videos GET request with uploader: {0} and search: {1}", uploader, search);
 	Set<Video> videos = videoService.getVideos(uploader, search);
-	if (videos.isEmpty()) {
-	  return RestResponse.notFound();
-	}
 	return RestResponse.ok(videos);
   }
 
