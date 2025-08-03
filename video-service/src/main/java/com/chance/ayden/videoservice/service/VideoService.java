@@ -5,8 +5,7 @@ import com.chance.ayden.videoservice.domain.Video;
 import com.chance.ayden.videoservice.mapper.VideoMapper;
 import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import software.amazon.awssdk.http.SdkHttpResponse;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
@@ -30,23 +29,25 @@ import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class VideoService {
-  private static final String DYNAMODB_TABLE_NAME = "ActvVideo";
   private final VideoMapper videoMapper;
   private final DynamoDbClient dynamoDbClient;
+  private final String tableName;
 
   public VideoService(
 	  VideoMapper videoMapper,
-	  @SuppressWarnings("CdiInjectionPointsInspection") DynamoDbClient dynamoDbClient
+	  @SuppressWarnings("CdiInjectionPointsInspection") DynamoDbClient dynamoDbClient,
+	  @ConfigProperty(name = "video.table-name") String tableName
   ) {
 	this.videoMapper = videoMapper;
 	this.dynamoDbClient = dynamoDbClient;
+	this.tableName = tableName;
   }
 
   public void storeVideo(Video video) {
 	Map<String, AttributeValue> item = videoMapper.mapVideoToDynamoDbItem(video);
 
 	PutItemRequest request = PutItemRequest.builder()
-		.tableName(DYNAMODB_TABLE_NAME)
+		.tableName(tableName)
 		.item(item)
 		.build();
 
@@ -59,7 +60,7 @@ public class VideoService {
 	item.put("VideoId", AttributeValue.fromS(videoId.toString()));
 
 	GetItemRequest request = GetItemRequest.builder()
-		.tableName(DYNAMODB_TABLE_NAME)
+		.tableName(tableName)
 		.key(item)
 		.build();
 
@@ -81,7 +82,7 @@ public class VideoService {
 	Map<String, AttributeValue> expressionValues = new HashMap<>();
 
 	ScanRequest.Builder scanRequestBuilder = ScanRequest.builder()
-		.tableName(DYNAMODB_TABLE_NAME);
+		.tableName(tableName);
 
 	boolean filtered = false;
 	if (uploader != null) {
@@ -113,7 +114,7 @@ public class VideoService {
 	item.put("VideoId", AttributeValue.fromS(videoId.toString()));
 
 	DeleteItemRequest deleteItemRequest = DeleteItemRequest.builder()
-		.tableName(DYNAMODB_TABLE_NAME)
+		.tableName(tableName)
 		.key(item)
 		.build();
 
