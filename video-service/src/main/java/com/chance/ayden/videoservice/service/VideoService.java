@@ -36,7 +36,7 @@ public class VideoService {
   public VideoService(
 	  VideoMapper videoMapper,
 	  @SuppressWarnings("CdiInjectionPointsInspection") DynamoDbClient dynamoDbClient,
-	  @ConfigProperty(name = "video.table-name") String tableName
+	  @ConfigProperty(name = "dynamodb.video-table-name") String tableName
   ) {
 	this.videoMapper = videoMapper;
 	this.dynamoDbClient = dynamoDbClient;

@@ -5,6 +5,7 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.S3Event;
 import com.amazonaws.services.lambda.runtime.events.models.s3.S3EventNotification;
 import io.quarkus.logging.Log;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import software.amazon.awssdk.http.crt.AwsCrtAsyncHttpClient;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.mediaconvert.MediaConvertAsyncClient;
@@ -58,15 +59,25 @@ import java.util.Map;
 
 public class TranscoderDispatchLambda implements RequestHandler<S3Event, Void> {
 
-  private static final String S3_OUTPUT_URI = "s3://actv-transcoded-videos/";
+  private final String s3OutputUri;
 
-  private static final String THUMBS_OUTPUT = S3_OUTPUT_URI + "thumbs/";
+  private final String thumbsOutput;
 
-  private static final String MP_4_OUTPUT = S3_OUTPUT_URI + "mp4/";
+  private final String mp4Output;
 
-  private static final String MEDIA_CONVERT_ROLE_ARN = "arn:aws:iam::039612889815:role/service-role/MediaConvert_Default_Role";
+  private final String mediaConvertRoleArn;
 
   private static final MediaConvertAsyncClient CLIENT;
+
+  public TranscoderDispatchLambda(
+	  @ConfigProperty(name = "media-convert.role-arn") String mediaConvertRoleArn,
+	  @ConfigProperty(name = "s3.transcoded-bucket-name") String transcodedBucketName
+  ) {
+	this.mediaConvertRoleArn = mediaConvertRoleArn;
+	this.s3OutputUri = "s3://%s/".formatted(transcodedBucketName);
+	this.thumbsOutput = this.s3OutputUri + "thumbs/";
+	this.mp4Output = this.s3OutputUri + "mp4/";
+  }
 
   // Client priming for AWS Lambda.
   static {
@@ -198,9 +209,9 @@ public class TranscoderDispatchLambda implements RequestHandler<S3Event, Void> {
 	String s3ObjectARN = parseS3EventARN(s3Event);
 	CreateJobResponse createJobResponse;
 
-	Log.debug("MediaConvert role ARN: " + MEDIA_CONVERT_ROLE_ARN);
+	Log.debug("MediaConvert role ARN: " + mediaConvertRoleArn);
 	Log.debug("MediaConvert input file ARN: " + s3ObjectARN);
-	Log.debug("MediaConvert output base path: " + S3_OUTPUT_URI);
+	Log.debug("MediaConvert output base path: " + s3OutputUri);
 
 	OutputGroup fileMp4 = createMp4OutputGroup();
 	OutputGroup thumbsGroup = createThumbsOutputGroup();
@@ -208,7 +219,7 @@ public class TranscoderDispatchLambda implements RequestHandler<S3Event, Void> {
 	JobSettings jobSettings = createJobSettings(s3ObjectARN, fileMp4, thumbsGroup);
 
 	CreateJobRequest mediaConvertJob = CreateJobRequest.builder()
-		.role(MEDIA_CONVERT_ROLE_ARN)
+		.role(mediaConvertRoleArn)
 		.settings(jobSettings)
 		.build();
 
@@ -260,7 +271,7 @@ public class TranscoderDispatchLambda implements RequestHandler<S3Event, Void> {
 				.type(OutputGroupType.FILE_GROUP_SETTINGS)
 				.fileGroupSettings(
 					FileGroupSettings.builder()
-						.destination(MP_4_OUTPUT)
+						.destination(mp4Output)
 						.destinationSettings(
 							DestinationSettings.builder()
 								.s3Settings(
@@ -285,7 +296,7 @@ public class TranscoderDispatchLambda implements RequestHandler<S3Event, Void> {
 		.outputGroupSettings(OutputGroupSettings.builder()
 			.type(OutputGroupType.FILE_GROUP_SETTINGS)
 			.fileGroupSettings(FileGroupSettings.builder()
-				.destination(THUMBS_OUTPUT).build())
+				.destination(thumbsOutput).build())
 			.build())
 		.outputs(Output.builder().extension("jpg")
 			.containerSettings(ContainerSettings.builder()

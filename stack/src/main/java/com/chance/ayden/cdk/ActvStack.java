@@ -39,6 +39,7 @@ import software.amazon.awscdk.services.s3.HttpMethods;
 import software.constructs.Construct;
 
 import java.util.List;
+import java.util.Map;
 
 @SuppressWarnings("unused")
 public class ActvStack extends Stack {
@@ -131,6 +132,17 @@ public class ActvStack extends Stack {
 		.build()
 	);
 
+	// Used by transcoder dispatch function to assign to MediaConvert jobs
+	final Role mediaConvertRole = Role.Builder.create(this, "mediaConvertRole")
+		.assumedBy(ServicePrincipal.Builder.create("mediaconvert.amazonaws.com").build())
+		.managedPolicies(
+			List.of(
+				ManagedPolicy.fromAwsManagedPolicyName("AmazonAPIGatewayInvokeFullAccess"),
+				ManagedPolicy.fromAwsManagedPolicyName("AmazonS3FullAccess")
+			)
+		)
+		.build();
+
 	final Function createMediaConvertJobFunction = Function.Builder.create(this, "createMediaConvertJobFunction")
 		.code(Code.fromAsset("../transcoder-dispatch-function/build/function.zip"))
 		.handler("io.quarkus.amazon.lambda.runtime.QuarkusStreamHandler::handleRequest")
@@ -138,6 +150,10 @@ public class ActvStack extends Stack {
 		.memorySize(1024)
 		.runtime(Runtime.JAVA_21)
 		.architecture(Architecture.ARM_64)
+		.environment(Map.of(
+			"S3_TRANSCODED_BUCKET_NAME", transcodedVideosBucket.getBucketName(),
+			"MEDIA_CONVERT_ROLE_ARN", mediaConvertRole.getRoleArn()
+		))
 		.role(
 			Role.Builder.create(this, "createMediaConvertJobServiceRole")
 				.assumedBy(ServicePrincipal.Builder.create("lambda.amazonaws.com").build())
@@ -181,6 +197,7 @@ public class ActvStack extends Stack {
 		.memorySize(1024)
 		.runtime(Runtime.JAVA_21)
 		.architecture(Architecture.ARM_64)
+		.environment(Map.of("DYNAMODB_VIDEO_TABLE_NAME", actvVideo.getTableName()))
 		.role(
 			Role.Builder.create(this, "videoApiFunctionServiceRole")
 				.assumedBy(ServicePrincipal.Builder.create("lambda.amazonaws.com").build())
@@ -248,17 +265,6 @@ public class ActvStack extends Stack {
 
 	final CfnOutput actvVideoTableName = CfnOutput.Builder.create(this, "actvVideoTableName")
 		.value(actvVideo.getTableName())
-		.build();
-
-	// Used by transcoder dispatch function to assign to MediaConvert jobs
-	final Role mediaConvertRole = Role.Builder.create(this, "mediaConvertRole")
-		.assumedBy(ServicePrincipal.Builder.create("mediaconvert.amazonaws.com").build())
-		.managedPolicies(
-			List.of(
-				ManagedPolicy.fromAwsManagedPolicyName("AmazonAPIGatewayInvokeFullAccess"),
-				ManagedPolicy.fromAwsManagedPolicyName("AmazonS3FullAccess")
-			)
-		)
 		.build();
 
 	final CfnOutput mediaConvertRoleArn = CfnOutput.Builder.create(this, "mediaConvertRoleArn")
