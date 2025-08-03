@@ -1,12 +1,11 @@
 package com.chance.ayden.cdk;
 
+import software.amazon.awscdk.CfnOutput;
 import software.amazon.awscdk.Duration;
 import software.amazon.awscdk.RemovalPolicy;
 import software.amazon.awscdk.Stack;
 import software.amazon.awscdk.StackProps;
 import software.amazon.awscdk.aws_apigatewayv2_integrations.HttpLambdaIntegration;
-import software.amazon.awscdk.services.apigateway.LambdaIntegration;
-import software.amazon.awscdk.services.apigateway.LambdaRestApi;
 import software.amazon.awscdk.services.apigatewayv2.AddRoutesOptions;
 import software.amazon.awscdk.services.apigatewayv2.CorsHttpMethod;
 import software.amazon.awscdk.services.apigatewayv2.CorsPreflightOptions;
@@ -52,7 +51,7 @@ public class ActvStack extends Stack {
 	super(scope, id, props);
 
 	final Table actvVideo = Table.Builder.create(this, "ActvVideo")
-		.tableName("test-ActvVideo")
+		.tableName("ActvVideo-new")
 		.partitionKey(Attribute.builder()
 			.name("VideoId")
 			.type(AttributeType.STRING)
@@ -63,7 +62,7 @@ public class ActvStack extends Stack {
 		.build();
 
 	final Bucket originalVideosBucket = Bucket.Builder.create(this, "originalVideosBucket")
-		.bucketName("test-actv-original-videos")
+		.bucketName("actv-original-videos-new")
 		.cors(List.of(
 			CorsRule.builder()
 				.allowedHeaders(List.of("*"))
@@ -82,7 +81,7 @@ public class ActvStack extends Stack {
 		.build();
 
 	final Bucket transcodedVideosBucket = Bucket.Builder.create(this, "transcodedVideosBucket")
-		.bucketName("test-actv-transcoded-videos")
+		.bucketName("actv-transcoded-videos-new")
 		.cors(List.of(
 			CorsRule.builder()
 				.allowedHeaders(List.of("*"))
@@ -100,7 +99,7 @@ public class ActvStack extends Stack {
 		.removalPolicy(RemovalPolicy.DESTROY)
 		.build();
 
-	final String websiteDomain = "test-aydenchancetv.com";
+	final String websiteDomain = "aydenchancetv-new.com";
 	final Bucket websiteBucket = Bucket.Builder.create(this, "websiteBucket")
 		.bucketName(websiteDomain)
 		.blockPublicAccess(BlockPublicAccess.BLOCK_ACLS_ONLY)
@@ -133,7 +132,6 @@ public class ActvStack extends Stack {
 	);
 
 	final Function createMediaConvertJobFunction = Function.Builder.create(this, "createMediaConvertJobFunction")
-		.functionName("test-createMediaConvertJob")
 		.code(Code.fromAsset("../transcoder-dispatch-function/build/function.zip"))
 		.handler("io.quarkus.amazon.lambda.runtime.QuarkusStreamHandler::handleRequest")
 		.timeout(Duration.seconds(10))
@@ -142,7 +140,6 @@ public class ActvStack extends Stack {
 		.architecture(Architecture.ARM_64)
 		.role(
 			Role.Builder.create(this, "createMediaConvertJobServiceRole")
-				.roleName("test-createMediaConvertJob-role")
 				.assumedBy(ServicePrincipal.Builder.create("lambda.amazonaws.com").build())
 				.managedPolicies(
 					List.of(
@@ -186,7 +183,6 @@ public class ActvStack extends Stack {
 		.architecture(Architecture.ARM_64)
 		.role(
 			Role.Builder.create(this, "videoApiFunctionServiceRole")
-				.roleName("test-videoApiFunction-role")
 				.assumedBy(ServicePrincipal.Builder.create("lambda.amazonaws.com").build())
 				.managedPolicies(
 					List.of(
@@ -222,7 +218,7 @@ public class ActvStack extends Stack {
 
 	actvVideo.grantReadWriteData(videoApiFunction);
 
-	final HttpApi videoApi = HttpApi.Builder.create(this, "test-videoApi")
+	final HttpApi videoApi = HttpApi.Builder.create(this, "videoApi")
 		.description("Video API")
 		.corsPreflight(CorsPreflightOptions.builder()
 			.allowOrigins(List.of("*")) // TODO: Revisit
@@ -241,5 +237,17 @@ public class ActvStack extends Stack {
 		)
 		.build()
 	);
+
+	final CfnOutput videoApiEndpoint = CfnOutput.Builder.create(this, "videoApiEndpoint")
+		.value(videoApi.getApiEndpoint())
+		.build();
+
+	final CfnOutput transcodedBucketName = CfnOutput.Builder.create(this, "transcodedBucketName")
+		.value(transcodedVideosBucket.getBucketName())
+		.build();
+
+	final CfnOutput actvVideoTableName = CfnOutput.Builder.create(this, "actvVideoTableName")
+		.value(actvVideo.getTableName())
+		.build();
   }
 }
