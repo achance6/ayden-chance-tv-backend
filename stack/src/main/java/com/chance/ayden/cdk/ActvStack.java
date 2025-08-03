@@ -249,5 +249,20 @@ public class ActvStack extends Stack {
 	final CfnOutput actvVideoTableName = CfnOutput.Builder.create(this, "actvVideoTableName")
 		.value(actvVideo.getTableName())
 		.build();
+
+	// Used by transcoder dispatch function to assign to MediaConvert jobs
+	final Role mediaConvertRole = Role.Builder.create(this, "mediaConvertRole")
+		.assumedBy(ServicePrincipal.Builder.create("mediaconvert.amazonaws.com").build())
+		.managedPolicies(
+			List.of(
+				ManagedPolicy.fromAwsManagedPolicyName("AmazonAPIGatewayInvokeFullAccess"),
+				ManagedPolicy.fromAwsManagedPolicyName("AmazonS3FullAccess")
+			)
+		)
+		.build();
+
+	final CfnOutput mediaConvertRoleArn = CfnOutput.Builder.create(this, "mediaConvertRoleArn")
+		.value(mediaConvertRole.getRoleArn())
+		.build();
   }
 }
