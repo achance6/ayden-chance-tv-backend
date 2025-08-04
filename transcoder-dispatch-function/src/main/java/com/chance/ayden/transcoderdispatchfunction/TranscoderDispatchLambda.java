@@ -85,6 +85,7 @@ public class TranscoderDispatchLambda implements RequestHandler<S3Event, Void> {
 		.region(Region.US_EAST_1) // Improves performance
 		.httpClient(AwsCrtAsyncHttpClient.create())
 		.build();
+	CLIENT.listVersions(ListVersionsRequest.builder().maxResults(1).build());
   }
 
   private final Output.Builder baseOutputBuilder = Output.builder()
