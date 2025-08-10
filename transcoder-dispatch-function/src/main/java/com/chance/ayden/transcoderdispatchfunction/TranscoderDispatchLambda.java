@@ -5,9 +5,8 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.S3Event;
 import com.amazonaws.services.lambda.runtime.events.models.s3.S3EventNotification;
 import io.quarkus.logging.Log;
+import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import software.amazon.awssdk.http.crt.AwsCrtAsyncHttpClient;
-import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.mediaconvert.MediaConvertAsyncClient;
 import software.amazon.awssdk.services.mediaconvert.model.AacCodingMode;
 import software.amazon.awssdk.services.mediaconvert.model.AacSettings;
@@ -57,6 +56,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@ApplicationScoped
 public class TranscoderDispatchLambda implements RequestHandler<S3Event, Void> {
 
   private final String s3OutputUri;
@@ -67,25 +67,18 @@ public class TranscoderDispatchLambda implements RequestHandler<S3Event, Void> {
 
   private final String mediaConvertRoleArn;
 
-  private static final MediaConvertAsyncClient CLIENT;
+  private final MediaConvertAsyncClient client;
 
   public TranscoderDispatchLambda(
 	  @ConfigProperty(name = "media-convert.role-arn") String mediaConvertRoleArn,
-	  @ConfigProperty(name = "s3.transcoded-bucket-name") String transcodedBucketName
+	  @ConfigProperty(name = "s3.transcoded-bucket-name") String transcodedBucketName,
+	  MediaConvertAsyncClient mediaConvertAsyncClient
   ) {
 	this.mediaConvertRoleArn = mediaConvertRoleArn;
 	this.s3OutputUri = "s3://%s/".formatted(transcodedBucketName);
+	this.client = mediaConvertAsyncClient;
 	this.thumbsOutput = this.s3OutputUri + "thumbs/";
 	this.mp4Output = this.s3OutputUri + "mp4/";
-  }
-
-  // Client priming for AWS Lambda.
-  static {
-	CLIENT = MediaConvertAsyncClient.builder()
-		.region(Region.US_EAST_1) // Improves performance
-		.httpClient(AwsCrtAsyncHttpClient.create())
-		.build();
-	CLIENT.listVersions(ListVersionsRequest.builder().maxResults(1).build());
   }
 
   private final Output.Builder baseOutputBuilder = Output.builder()
@@ -224,7 +217,7 @@ public class TranscoderDispatchLambda implements RequestHandler<S3Event, Void> {
 		.settings(jobSettings)
 		.build();
 
-	CLIENT.createJob(mediaConvertJob);
+	client.createJob(mediaConvertJob);
 	Log.info("Created MediaConvert job");
 
   }
