@@ -1,4 +1,4 @@
-package com.chance.ayden.videoservice.resource;
+package com.chance.ayden.videoservice.controller;
 
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.RestAssured;

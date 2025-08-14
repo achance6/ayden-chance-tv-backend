@@ -1,4 +1,4 @@
-package com.chance.ayden.videoservice.resource;
+package com.chance.ayden.videoservice.controller;
 
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
@@ -10,7 +10,7 @@ import java.util.Map;
 
 @Path("")
 @Produces(MediaType.APPLICATION_JSON)
-public class GreetingResource {
+public class GreetingController {
 
     @GET
     public Map<String, Object> index() {

@@ -1,6 +1,6 @@
 package com.chance.ayden;
 
-import com.chance.ayden.videoservice.resource.GreetingTest;
+import com.chance.ayden.videoservice.controller.GreetingTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.test.junit.QuarkusIntegrationTest;
 import jakarta.inject.Inject;

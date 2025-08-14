@@ -1,4 +1,4 @@
-package com.chance.ayden.videoservice.resource;
+package com.chance.ayden.videoservice.controller;
 
 import com.chance.ayden.videoservice.domain.Video;
 import com.chance.ayden.videoservice.service.VideoService;
