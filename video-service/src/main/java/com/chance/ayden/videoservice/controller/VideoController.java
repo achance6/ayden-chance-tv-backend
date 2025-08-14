@@ -43,16 +43,13 @@ public class VideoController {
   @DELETE
   public RestResponse<String> deleteVideo(@PathParam("videoId") UUID videoId) {
 	Log.infov("Received /video DELETE request with videoId {0}", videoId);
-	var sdkRestResponse = videoService.deleteVideo(videoId);
+	var deletedVideo = videoService.deleteVideo(videoId);
 
-	if (sdkRestResponse.statusCode() == RestResponse.Status.NOT_FOUND.getStatusCode()) {
+	if (deletedVideo.isEmpty()) {
 	  return RestResponse.notFound();
 	}
-	if (!sdkRestResponse.isSuccessful()) {
-	  return RestResponse.serverError();
-	}
 
-	return RestResponse.ok("Video with ID " + videoId + " deleted");
+	return RestResponse.ok("Video with ID " + deletedVideo.get().videoId() + " deleted");
   }
 
   @Path("/videos")

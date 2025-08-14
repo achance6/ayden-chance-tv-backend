@@ -5,10 +5,11 @@
       <option name="myIgnoredAnnotations">
         <list>
           <option value="io.micronaut.*" />
+          <option value="io.quarkus.*" />
           <option value="jakarta.*" />
           <option value="javax.*" />
           <option value="org.springframework.*" />
-          <option value="io.quarkus.*" />
+          <option value="software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean" />
         </list>
       </option>
     </inspection_tool>
