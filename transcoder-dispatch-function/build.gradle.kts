@@ -15,8 +15,9 @@ dependencies {
     }
     implementation("software.amazon.awssdk:aws-crt-client")
 
-    testImplementation("io.quarkus:quarkus-junit5")
+    testImplementation("io.quarkus:quarkus-junit5-mockito")
     testImplementation("io.rest-assured:rest-assured")
+    testImplementation("org.instancio:instancio-junit:5.5.0")
 
     testImplementation("com.amazonaws:aws-lambda-java-tests:1.1.1")
     testImplementation("com.amazonaws:aws-lambda-java-serialization:1.1.6")
