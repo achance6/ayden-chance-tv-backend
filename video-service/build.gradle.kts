@@ -3,6 +3,7 @@ plugins {
 }
 
 val quarkusPlatformVersion: String by project
+val mockitoAgent: Configuration by configurations.creating
 
 dependencies {
     implementation(enforcedPlatform("io.quarkus.platform:quarkus-bom:$quarkusPlatformVersion"))
@@ -14,9 +15,21 @@ dependencies {
     // TODO: Test AWS CRT Client
     implementation("software.amazon.awssdk:url-connection-client")
 
-    testImplementation("io.quarkus:quarkus-junit5")
+    testImplementation("io.quarkus:quarkus-junit5-mockito")
     testImplementation("io.rest-assured:rest-assured")
     testImplementation("org.instancio:instancio-junit:5.5.0")
+
+    // Resolves warning when running tests on Apple Silicon
+    testRuntimeOnly("io.netty:netty-resolver-dns-native-macos:4.2.3.Final:osx-aarch_64")
+
+    // Resolves JVM warning concerning dynamically attaching agents
+    mockitoAgent("org.mockito:mockito-core:5.18.0") {
+        isTransitive = false
+    }
+}
+
+tasks.withType<Test> {
+    jvmArgs("-javaagent:${mockitoAgent.asPath}")
 }
 
 group = "com.chance.ayden.videoservice"
