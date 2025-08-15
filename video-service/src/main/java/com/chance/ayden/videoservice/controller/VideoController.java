@@ -30,13 +30,10 @@ public class VideoController {
 
   @Path("/{videoId}")
   @GET
-  public RestResponse<Video> getVideo(@PathParam("videoId") UUID videoId) {
+  public Video getVideo(@PathParam("videoId") UUID videoId) {
 	Log.infov("Received /video GET request with videoId {0}", videoId);
 	var video = videoService.getVideo(videoId);
-	if (video.isEmpty()) {
-	  return RestResponse.notFound();
-	}
-	return RestResponse.ok(video.get());
+	return video.get();
   }
 
   @Path("/{videoId}")
@@ -63,6 +60,7 @@ public class VideoController {
 	return RestResponse.ok(videos);
   }
 
+  @Path("")
   @POST
   public RestResponse<Video> storeVideo(@Valid Video video) {
 	Log.infov("Received /video POST request with video: {0}", video);

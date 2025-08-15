@@ -1,6 +1,5 @@
 package com.chance.ayden.videoservice.service;
 
-
 import com.chance.ayden.videoservice.domain.Video;
 import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -28,7 +27,7 @@ public class VideoService {
   public VideoService(
 	  @SuppressWarnings("CdiInjectionPointsInspection") DynamoDbEnhancedClient dynamoDbEnhancedClient,
 	  @ConfigProperty(name = "dynamodb.video-table-name") String tableName) {
-	this.videoTable = dynamoDbEnhancedClient.table(tableName, TableSchema.fromClass(Video.class));
+	this.videoTable = dynamoDbEnhancedClient.table(tableName, TableSchema.fromImmutableClass(Video.class));
   }
 
   public void storeVideo(Video video) {
@@ -43,11 +42,11 @@ public class VideoService {
 			.build()
 		)
 	);
-	Log.infov("Response from DynamoDB getItem: {0}", response);
 	if (response.attributes() == null) {
 	  return Optional.empty();
 	}
 	var videoItem = response.attributes();
+	Log.infov("Response from DynamoDB getItem: {0}", videoItem);
 
 	return Optional.of(videoItem);
   }
@@ -63,7 +62,7 @@ public class VideoService {
 	Map<String, AttributeValue> expressionValues = new HashMap<>();
 
 	if (uploader != null) {
-	  filterExpression += "uploader = :uploader";
+	  filterExpression += "Uploader = :uploader";
 	  expressionValues.put(":uploader", AttributeValue.fromS(uploader));
 	}
 
@@ -71,7 +70,7 @@ public class VideoService {
 	  if (!filterExpression.isEmpty()) {
 		filterExpression += " AND ";
 	  }
-	  filterExpression += "contains(title, :search)";
+	  filterExpression += "contains(Title, :search)";
 	  expressionValues.put(":search", AttributeValue.fromS(search));
 	}
 

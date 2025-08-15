@@ -6,6 +6,7 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
 import jakarta.inject.Inject;
 import org.instancio.Instancio;
+import org.instancio.Select;
 import org.jboss.resteasy.reactive.RestResponse;
 import org.junit.jupiter.api.Test;
 
@@ -151,7 +152,9 @@ class VideoServiceTest {
 		.assertThat()
 		.statusCode(RestResponse.StatusCode.OK)
 		.and()
-		.body("videoId", equalTo(videoId.toString()));
+		.body("videoId", equalTo(videoId.toString()))
+		.log()
+		.body(true);
   }
 
   @Test

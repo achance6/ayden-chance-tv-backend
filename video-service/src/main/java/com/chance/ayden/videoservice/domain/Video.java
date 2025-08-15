@@ -1,12 +1,12 @@
 package com.chance.ayden.videoservice.domain;
 
-import com.chance.ayden.videoservice.MyAttributeConverterProvider;
-import com.chance.ayden.videoservice.UUIDAttributeConverter;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.quarkus.runtime.annotations.RegisterForReflection;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import software.amazon.awssdk.enhanced.dynamodb.DefaultAttributeConverterProvider;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
-import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbIgnore;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbImmutable;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
 
@@ -15,11 +15,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-@DynamoDbImmutable(builder = Video.Builder.class, converterProviders = {
-	MyAttributeConverterProvider.class,
-	DefaultAttributeConverterProvider.class
-})
-public final class Video {
+@DynamoDbImmutable(builder = Video.Builder.class)
+@RegisterForReflection
+public final class Video implements Comparable<Video> {
   private final @NotNull UUID videoId;
   private final @NotBlank String title;
   private final @NotNull String description;
@@ -38,14 +36,15 @@ public final class Video {
 	this.viewCount = builder.viewCount;
   }
 
+  @JsonCreator
   public Video(
-	  @NotNull UUID videoId,
-	  @NotBlank String title,
-	  @NotNull String description,
-	  @NotNull List<@NotBlank String> tags,
-	  @NotNull LocalDateTime creationDateTime,
-	  @NotBlank String uploader,
-	  @NotNull Integer viewCount
+	  @NotNull @JsonProperty("videoId") UUID videoId,
+	  @NotBlank @JsonProperty("title") String title,
+	  @NotNull @JsonProperty("description") String description,
+	  @NotNull @JsonProperty("tags") List<@NotBlank String> tags,
+	  @NotNull @JsonProperty("creationDateTime") LocalDateTime creationDateTime,
+	  @NotBlank @JsonProperty("uploader") String uploader,
+	  @NotNull @JsonProperty("viewCount") Integer viewCount
   ) {
 	this.videoId = videoId;
 	this.title = title;
@@ -60,34 +59,56 @@ public final class Video {
 	return new Builder();
   }
 
+  @JsonProperty("videoId")
   @DynamoDbPartitionKey
-  public @NotNull UUID videoId() {
+  @DynamoDbAttribute("VideoId")
+  @NotNull
+  public UUID videoId() {
 	return videoId;
   }
 
-  public @NotBlank String title() {
+  @JsonProperty("title")
+  @NotBlank
+  @DynamoDbAttribute("Title")
+  public String title() {
 	return title;
   }
 
-  public @NotNull String description() {
+  @JsonProperty("description")
+  @NotNull
+  @DynamoDbAttribute("Description")
+  public String description() {
 	return description;
   }
 
-  public @NotNull List<@NotBlank String> tags() {
+  @JsonProperty("tags")
+  @NotNull
+  @DynamoDbAttribute("Tags")
+  public List<@NotBlank String> tags() {
 	return tags;
   }
 
-  public @NotNull LocalDateTime creationDateTime() {
+  @JsonProperty("creationDateTime")
+  @NotNull
+  @DynamoDbAttribute("CreationDateTime")
+  public LocalDateTime creationDateTime() {
 	return creationDateTime;
   }
 
-  public @NotBlank String uploader() {
+  @JsonProperty("uploader")
+  @NotBlank
+  @DynamoDbAttribute("Uploader")
+  public String uploader() {
 	return uploader;
   }
 
-  public @NotNull Integer viewCount() {
+  @JsonProperty("viewCount")
+  @NotNull
+  @DynamoDbAttribute("ViewCount")
+  public Integer viewCount() {
 	return viewCount;
   }
+
 
   @Override
   public boolean equals(Object obj) {
@@ -120,6 +141,16 @@ public final class Video {
 		"creationDateTime=" + creationDateTime + ", " +
 		"uploader=" + uploader + ", " +
 		"viewCount=" + viewCount + ']';
+  }
+
+  @Override
+  @DynamoDbIgnore
+  public int compareTo(Video other) {
+	if (this.videoId.compareTo(other.videoId) != 0){
+	  return this.videoId.compareTo(other.videoId);
+	} else {
+	  return this.title.compareTo(other.title);
+	}
   }
 
   public static final class Builder {
