@@ -1,12 +1,12 @@
-package com.chance.ayden.videoservice.service;
+package com.chance.ayden.videoservice;
 
 import com.chance.ayden.videoservice.domain.Video;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.TestProfile;
 import io.restassured.http.ContentType;
 import jakarta.inject.Inject;
 import org.instancio.Instancio;
-import org.instancio.Select;
 import org.jboss.resteasy.reactive.RestResponse;
 import org.junit.jupiter.api.Test;
 
@@ -17,11 +17,12 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
 
 @QuarkusTest
-class VideoServiceTest {
+@TestProfile(IntegrationProfile.class)
+class VideoServiceTestIT {
   private final ObjectMapper objectMapper;
 
   @Inject
-  VideoServiceTest(ObjectMapper objectMapper) {
+  VideoServiceTestIT(ObjectMapper objectMapper) {
 	this.objectMapper = objectMapper;
   }
 
