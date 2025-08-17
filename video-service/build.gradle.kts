@@ -2,6 +2,9 @@ plugins {
     id("io.quarkus")
 }
 
+version = "0.1.0-SNAPSHOT"
+group = "com.chance.ayden.videoservice"
+
 val quarkusPlatformVersion: String by project
 val mockitoAgent: Configuration by configurations.creating
 
@@ -32,5 +35,36 @@ tasks.withType<Test> {
     jvmArgs("-javaagent:${mockitoAgent.asPath}")
 }
 
-group = "com.chance.ayden.videoservice"
-version = "0.1.0-SNAPSHOT"
+@Suppress("UnstableApiUsage")
+testing.suites {
+    withType<JvmTestSuite> {
+        dependencies {
+            implementation(project())
+        }
+    }
+    val test by getting(JvmTestSuite::class)
+
+    val actvIntegrationTest by registering(JvmTestSuite::class) {
+        targets {
+            all {
+                testTask {
+                    shouldRunAfter(test)
+                }
+            }
+        }
+    }
+
+    tasks.check {
+        dependsOn(
+            test,
+            actvIntegrationTest
+        )
+    }
+}
+
+configurations.named("actvIntegrationTestImplementation") {
+    extendsFrom(
+        configurations.implementation.get(),
+        configurations.testImplementation.get()
+    )
+}
