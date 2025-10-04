@@ -69,15 +69,15 @@ class VideoServiceTestIT {
 
   @Test
   void testVideosGet() {
-    given()
-        .contentType(ContentType.JSON)
-        .accept(ContentType.JSON)
-        .when()
-        .get("/video/videos")
-        .then()
-        .assertThat()
-        .statusCode(RestResponse.StatusCode.OK)
-        .body("size()", greaterThanOrEqualTo(2));
+	given()
+		.contentType(ContentType.JSON)
+		.accept(ContentType.JSON)
+		.when()
+		.get("/video/videos")
+		.then()
+		.assertThat()
+		.statusCode(RestResponse.StatusCode.OK)
+		.body("size()", greaterThanOrEqualTo(2));
   }
 
   @Test
@@ -124,7 +124,8 @@ class VideoServiceTestIT {
 		.assertThat()
 		.statusCode(RestResponse.StatusCode.OK)
 		.and()
-		.body("title", everyItem(containsString("test")));;
+		.body("title", everyItem(containsString("test")));
+	;
   }
 
   @Test

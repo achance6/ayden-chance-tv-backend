@@ -146,7 +146,7 @@ public final class Video implements Comparable<Video> {
   @Override
   @DynamoDbIgnore
   public int compareTo(Video other) {
-	if (this.videoId.compareTo(other.videoId) != 0){
+	if (this.videoId.compareTo(other.videoId) != 0) {
 	  return this.videoId.compareTo(other.videoId);
 	} else {
 	  return this.title.compareTo(other.title);

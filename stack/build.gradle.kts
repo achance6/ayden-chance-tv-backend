@@ -1,11 +1,11 @@
 plugins {
-    application
+	application
 }
 
 dependencies {
-    implementation("software.amazon.awscdk:aws-cdk-lib:2.207.0")
+	implementation("software.amazon.awscdk:aws-cdk-lib:2.207.0")
 }
 
 application {
-    mainClass = "com.chance.ayden.cdk.ActvApp"
+	mainClass = "com.chance.ayden.cdk.ActvApp"
 }

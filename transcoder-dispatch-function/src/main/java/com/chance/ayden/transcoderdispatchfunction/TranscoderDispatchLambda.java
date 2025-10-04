@@ -58,7 +58,6 @@ import java.util.Map;
 
 @ApplicationScoped
 public class TranscoderDispatchLambda implements RequestHandler<S3Event, Void> {
-
   private final String s3OutputUri;
 
   private final String thumbsOutput;
@@ -68,19 +67,6 @@ public class TranscoderDispatchLambda implements RequestHandler<S3Event, Void> {
   private final String mediaConvertRoleArn;
 
   private final MediaConvertAsyncClient client;
-
-  public TranscoderDispatchLambda(
-	  @ConfigProperty(name = "media-convert.role-arn") String mediaConvertRoleArn,
-	  @ConfigProperty(name = "s3.transcoded-bucket-name") String transcodedBucketName,
-	  MediaConvertAsyncClient mediaConvertAsyncClient
-  ) {
-	this.mediaConvertRoleArn = mediaConvertRoleArn;
-	this.s3OutputUri = "s3://%s/".formatted(transcodedBucketName);
-	this.client = mediaConvertAsyncClient;
-	this.thumbsOutput = this.s3OutputUri + "thumbs/";
-	this.mp4Output = this.s3OutputUri + "mp4/";
-  }
-
   private final Output.Builder baseOutputBuilder = Output.builder()
 	  .audioDescriptions(List.of(AudioDescription.builder()
 		  .codecSettings(AudioCodecSettings.builder()
@@ -191,6 +177,17 @@ public class TranscoderDispatchLambda implements RequestHandler<S3Event, Void> {
 			  .build())
 		  .build())
 	  .build();
+  public TranscoderDispatchLambda(
+	  @ConfigProperty(name = "media-convert.role-arn") String mediaConvertRoleArn,
+	  @ConfigProperty(name = "s3.transcoded-bucket-name") String transcodedBucketName,
+	  MediaConvertAsyncClient mediaConvertAsyncClient
+  ) {
+	this.mediaConvertRoleArn = mediaConvertRoleArn;
+	this.s3OutputUri = "s3://%s/".formatted(transcodedBucketName);
+	this.client = mediaConvertAsyncClient;
+	this.thumbsOutput = this.s3OutputUri + "thumbs/";
+	this.mp4Output = this.s3OutputUri + "mp4/";
+  }
 
   @Override
   public Void handleRequest(S3Event input, Context context) {

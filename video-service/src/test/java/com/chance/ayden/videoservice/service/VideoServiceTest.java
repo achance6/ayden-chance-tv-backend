@@ -6,7 +6,6 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
 import jakarta.inject.Inject;
 import org.instancio.Instancio;
-import org.instancio.Select;
 import org.jboss.resteasy.reactive.RestResponse;
 import org.junit.jupiter.api.Test;
 
@@ -68,15 +67,15 @@ class VideoServiceTest {
 
   @Test
   void testVideosGet() {
-    given()
-        .contentType(ContentType.JSON)
-        .accept(ContentType.JSON)
-        .when()
-        .get("/video/videos")
-        .then()
-        .assertThat()
-        .statusCode(RestResponse.StatusCode.OK)
-        .body("size()", greaterThanOrEqualTo(2));
+	given()
+		.contentType(ContentType.JSON)
+		.accept(ContentType.JSON)
+		.when()
+		.get("/video/videos")
+		.then()
+		.assertThat()
+		.statusCode(RestResponse.StatusCode.OK)
+		.body("size()", greaterThanOrEqualTo(2));
   }
 
   @Test
@@ -123,7 +122,8 @@ class VideoServiceTest {
 		.assertThat()
 		.statusCode(RestResponse.StatusCode.OK)
 		.and()
-		.body("title", everyItem(containsString("test")));;
+		.body("title", everyItem(containsString("test")));
+	;
   }
 
   @Test
