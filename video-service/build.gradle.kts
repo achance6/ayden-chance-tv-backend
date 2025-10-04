@@ -18,6 +18,9 @@ dependencies {
 	// TODO: Test AWS CRT Client
 	implementation("software.amazon.awssdk:url-connection-client")
 
+	// Generates OpenAPI spec from code.
+	implementation("io.quarkus:quarkus-smallrye-openapi")
+
 	testImplementation("io.quarkus:quarkus-junit5-mockito")
 	testImplementation("io.rest-assured:rest-assured")
 	testImplementation("org.instancio:instancio-junit:5.5.0")
