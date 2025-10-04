@@ -49,6 +49,7 @@ public class VideoController {
 	return RestResponse.ok("Video with ID " + deletedVideo.get().videoId() + " deleted");
   }
 
+  // TODO: /video/videos should be changed to /videos
   @Path("/videos")
   @GET
   public RestResponse<Set<Video>> getVideos(
