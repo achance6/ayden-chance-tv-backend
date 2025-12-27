@@ -18,7 +18,7 @@ import org.jboss.resteasy.reactive.RestResponse;
 import java.util.Set;
 import java.util.UUID;
 
-@Path("/video")
+@Path("/videos")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class VideoController {
@@ -49,15 +49,30 @@ public class VideoController {
 	return RestResponse.ok("Video with ID " + deletedVideo.get().videoId() + " deleted");
   }
 
-  // TODO: /video/videos should be changed to /videos
-  @Path("/videos")
   @GET
   public RestResponse<Set<Video>> getVideos(
 	  @QueryParam("uploader") String uploader,
 	  @QueryParam("search") String search
   ) {
 	Log.infov("Received /video/videos GET request with uploader: {0} and search: {1}", uploader, search);
-	Set<Video> videos = videoService.getVideos(uploader, search);
+	Set<Video> videos;
+
+	if (uploader != null && search != null) {
+	  videos = videoService.getVideos(uploader, search);
+	  return RestResponse.ok(videos);
+	}
+
+	if (uploader != null) {
+	  videos = videoService.getVideosByUploader(uploader);
+	  return RestResponse.ok(videos);
+	}
+
+	if (search != null) {
+	  videos = videoService.getVideosByTitle(search);
+	  return RestResponse.ok(videos);
+	}
+
+	videos = videoService.getVideos();
 	return RestResponse.ok(videos);
   }
 

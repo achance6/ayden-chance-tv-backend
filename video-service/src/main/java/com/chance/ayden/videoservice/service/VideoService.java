@@ -51,33 +51,74 @@ public class VideoService {
 	return Optional.of(videoItem);
   }
 
+  private Set<Video> getVideos(ScanEnhancedRequest scanEnhancedRequest) {
+	return videoTable.scan(scanEnhancedRequest)
+		.items()
+		.stream()
+		.collect(Collectors.toUnmodifiableSet());
+  }
+
+  public Set<Video> getVideos() {
+	return getVideos(ScanEnhancedRequest.builder().build());
+  }
+
+  public Set<Video> getVideosByTitle(String search) {
+	Map<String, AttributeValue> expressionValues = new HashMap<>();
+
+	String filterExpression = "contains(Title, :search)";
+	expressionValues.put(":search", AttributeValue.fromS(search));
+
+	return getVideos(ScanEnhancedRequest.builder()
+		.filterExpression(
+			Expression.builder()
+				.expression(filterExpression)
+				.expressionValues(expressionValues)
+				.build()
+		).build()
+	);
+  }
+
+  public Set<Video> getVideosByUploader(String uploader) {
+		Map<String, AttributeValue> expressionValues = new HashMap<>();
+
+		String filterExpression = "Uploader = :uploader";
+		expressionValues.put(":uploader", AttributeValue.fromS(uploader));
+
+		return getVideos(ScanEnhancedRequest.builder()
+			.filterExpression(
+				Expression.builder()
+					.expression(filterExpression)
+					.expressionValues(expressionValues)
+					.build()
+			).build()
+		);
+  }
+
   public Set<Video> getVideos(
 	  String uploader,
 	  String search
   ) {
-
-	var scanEnhancedRequest = ScanEnhancedRequest.builder();
-
-	String filterExpression = "";
+	StringBuilder filterExpression = new StringBuilder();
 	Map<String, AttributeValue> expressionValues = new HashMap<>();
 
 	if (uploader != null) {
-	  filterExpression += "Uploader = :uploader";
+	  filterExpression.append("Uploader = :uploader");
 	  expressionValues.put(":uploader", AttributeValue.fromS(uploader));
 	}
 
 	if (search != null) {
 	  if (!filterExpression.isEmpty()) {
-		filterExpression += " AND ";
+		filterExpression.append(" AND ");
 	  }
-	  filterExpression += "contains(Title, :search)";
+	  filterExpression.append("contains(Title, :search)");
 	  expressionValues.put(":search", AttributeValue.fromS(search));
 	}
 
+	var scanEnhancedRequest = ScanEnhancedRequest.builder();
 	if (!expressionValues.isEmpty()) {
 	  scanEnhancedRequest.filterExpression(
 		  Expression.builder()
-			  .expression(filterExpression)
+			  .expression(filterExpression.toString())
 			  .expressionValues(expressionValues)
 			  .build()
 	  );
@@ -86,7 +127,7 @@ public class VideoService {
 	return videoTable.scan(scanEnhancedRequest.build())
 		.items()
 		.stream()
-		.collect(Collectors.toSet());
+		.collect(Collectors.toUnmodifiableSet());
   }
 
   public Optional<Video> deleteVideo(UUID videoId) {
